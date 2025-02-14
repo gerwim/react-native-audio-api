@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState, FC } from 'react';
-import { Container, Button, Spacer } from '../../components';
+import { Container, Button, Spacer, Slider } from '../../components';
 import { Asset } from 'expo-asset';
 
 import {
@@ -25,6 +25,8 @@ const SyncedAudioPlayer: FC = () => {
 
   const [startTime, setStartTime] = useState(0);
   const [offset, setOffset] = useState(0);
+
+  const [speed, setSpeed] = React.useState(1);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const soundTracks = useRef<SoundTracks>({});
@@ -60,6 +62,14 @@ const SyncedAudioPlayer: FC = () => {
     }
   };
 
+  useEffect(() => {
+    Object.values(soundTracks.current).forEach((sound) => {
+      if (!sound.audioBufferNode) return;
+
+      sound.audioBufferNode.playbackRate.value = speed;
+    });
+  }, [speed]);
+
   const stop = (stopTime = undefined) => {
     Object.values(soundTracks.current).map((track) =>
       track.audioBufferNode?.stop(stopTime)
@@ -77,6 +87,7 @@ const SyncedAudioPlayer: FC = () => {
 
       bufferNode.buffer = soundTracks.current[sound].audioBuffer!;
       bufferNode.loop = true;
+      bufferNode.playbackRate.value = speed;
       bufferNode.start(startTime, offset);
 
       soundTracks.current = {
@@ -126,6 +137,16 @@ const SyncedAudioPlayer: FC = () => {
         title={isPlaying ? 'Stop' : 'Play'}
         onPress={handlePress}
         disabled={isLoading}
+      />
+      <Spacer.Vertical size={20} />
+      <Slider
+        label="Speed"
+        value={speed}
+        onValueChange={setSpeed}
+        min={0.7}
+        max={1.3}
+        step={0.01}
+        minLabelWidth={80}
       />
     </Container>
   );
