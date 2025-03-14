@@ -82,7 +82,9 @@ const SyncedAudioPlayer: FC = () => {
       const audioNodes = soundTracks.current[sound];
       if (!audioNodes.audioBuffer) return;
 
-      const bufferNode = audioContextRef.current.createBufferSource();
+      const bufferNode = audioContextRef.current.createBufferSource({
+        pitchCorrection: true,
+      });
       bufferNode.connect(audioNodes.gainNode);
 
       bufferNode.buffer = soundTracks.current[sound].audioBuffer!;
